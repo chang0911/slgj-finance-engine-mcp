@@ -110,3 +110,5 @@
 ---
 
 © 丝路E投 SLGJ · [www.slgj.cn](https://www.slgj.cn) · 服务持续在产运行，计算全部在服务端完成（本仓库为接入文档，不含引擎源码）
+
+本仓库文档与示例代码采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.zh) 许可；「丝路E投」名称、标识与云端服务不在许可范围，版权归丝路E投所有（详见 [LICENSE](LICENSE)）

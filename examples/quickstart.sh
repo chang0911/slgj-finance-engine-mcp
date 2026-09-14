@@ -3,7 +3,7 @@
 # 用法：export SLGJ_TOKEN="***" && sh quickstart.sh
 set -eu
 ENDPOINT="https://www.slgj.cn/skills-api/api/v1/mcp"
-AUTH="Authorization: Bearer ${SLGJ_TOKEN:*** export SLGJ_TOKEN=***"
+AUTH="Authorization: Bearer ${SLGJ_TOKEN:?需要先 export SLGJ_TOKEN=***}"
 echo "== ① 初始化（常规客户端自动完成） =="
 curl -s -X POST "$ENDPOINT" \
   -H 'Content-Type: application/json' -H "$AUTH" \
