@@ -72,6 +72,19 @@
 }
 ```
 
+**更省事——一句话接入**：把下面这段直接发给有文件/命令执行能力的智能体（Claude Code / Cursor / Cline / VS Code Copilot 等），它会自行配置并完成握手验证：
+
+```text
+请为我接入远程 MCP 服务器「丝路e投财务模型引擎」：
+- 服务名：slgj-finance
+- 端点：https://www.slgj.cn/skills-api/api/v1/mcp（Streamable HTTP，仅 POST）
+- 鉴权：请求头 Authorization: Bearer <我的令牌>（令牌我稍后提供，若你已看到请直接用）
+
+请按你所在环境自行选择接入方式（写入 mcp.json / claude mcp add / MCP 设置界面添加均可），
+连接后调用 tools/list 验证（应返回 21 个工具），再调用一次 get_protocol_instructions 阅读
+接入总则（72 小时内免重复）。完成后告诉我已接入的工具数量，然后等我发项目数据开始测算。
+```
+
 **3. 首次调用**（三步验证流）：
 
 ```
