@@ -2,7 +2,7 @@
 
 <img src="assets/logo.png" width="120" alt="SLGJ Finance Engine"/>
 
-# 丝路E投财务引擎 · SLGJ Finance Engine
+# 丝路e投财务模型引擎 · SLGJ Finance Engine
 
 **投融资项目全寿命财务模型 MCP 服务 | Full-life financial modeling MCP for investment projects**
 
