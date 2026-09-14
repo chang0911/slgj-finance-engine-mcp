@@ -1,0 +1,45 @@
+{
+  "name": "slgj-finance-engine",
+  "display_name": "丝路E投 · 投融资财务引擎",
+  "description": "Investment & financing financial analysis engine (annual quick + monthly precise dual-indicator sets; industry-unique exact modeling of arbitrary-month cash flows incl. non-full-year / non-January start): natural-language modeling -> 11-statement financial computation (IRR/MIRR/NPV), report health-check (73 rules), dashboards, Word/PPT deliverables, uncertainty analysis (Monte Carlo), cost estimation. Chinese-first, unit: 万元. 适用于任何投融资项目（不限行业与类型），按年粗算+按月精算双套指标、动态资金流演绎、双口径动态偿债能力分析。投融资财务测算与分析：快速建模→11张报表测算→报表勾稽体检→看板/报告/不确定性分析→投资估算。 Instant reverse-solve: given a target metric (e.g. IRR=8%), compute the required revenue/cost/investment adjustment in seconds. 秒级指标反算。",
+  "url": "https://www.slgj.cn/skills-api/api/v1/mcp",
+  "transport": "streamable-http",
+  "auth": {
+    "type": "api-key",
+    "location": "header",
+    "name": "Authorization",
+    "note": "Platform-issued MCP token (sk-mcp-...) or web login token. Get yours at https://www.slgj.cn (register -> Personal Center -> AI Access)."
+  },
+  "tags": [
+    "finance",
+    "financial-analysis",
+    "investment",
+    "modeling",
+    "reporting",
+    "chinese",
+    "due-diligence",
+    "irr"
+  ],
+  "tools_count": 21,
+  "language": [
+    "zh-CN",
+    "en"
+  ],
+  "vendor": {
+    "name": "丝路E投 SilkRoad E-Invest",
+    "website": "https://www.slgj.cn",
+    "contact": "https://www.slgj.cn"
+  },
+  "capabilities": [
+    "fast_calc_solve: second-level goal-seeking (given target IRR/NPV, compute required revenue/cost/investment adjustment)",
+    "submit_feedback / query_usage: in-band user feedback & usage stats",
+    "fast_calc_reports: 5-type input txt -> 16-key JSON (11 statements + indicators + diagnostics)",
+    "run_model_check: 73-rule statement cross-check (6 categories)",
+    "run_revenue_review: revenue/expense reasonableness review (16 items)",
+    "get_chapter_data: feasibility-study / econ-eval chapter data extraction",
+    "generate_word_report / generate_dashboard / generate_ppt_html: deliverables (url mode for large files)",
+    "run_uncertainty: sensitivity / scenario / Monte-Carlo",
+    "estimate_excel / match_cost_indicators: investment estimation + cost-indicator matching",
+    "permitted_cost_excel / run_national_econ: regulated pricing & national econ evaluation"
+  ]
+}
