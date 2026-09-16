@@ -62,7 +62,7 @@
 ```json
 {
   "mcpServers": {
-    "slgj-finance": {
+    "slgj-finance-engine": {
       "type": "streamableHttp",
       "url": "https://www.slgj.cn/skills-api/api/v1/mcp",
       "headers": { "Authorization": "Bearer <YOUR_TOKEN>" },
@@ -76,7 +76,7 @@
 
 ```text
 请为我接入远程 MCP 服务器「丝路e投财务模型引擎」：
-- 服务名：slgj-finance
+- 服务名：slgj-finance-engine
 - 端点：https://www.slgj.cn/skills-api/api/v1/mcp（Streamable HTTP，仅 POST）
 - 鉴权：请求头 Authorization: Bearer <我的令牌>（令牌我稍后提供，若你已看到请直接用）
 

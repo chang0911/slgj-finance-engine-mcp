@@ -1,6 +1,6 @@
 {
   "servers": {
-    "slgj-finance": {
+    "slgj-finance-engine": {
       "type": "http",
       "url": "https://www.slgj.cn/skills-api/api/v1/mcp",
       "headers": {

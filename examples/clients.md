@@ -23,7 +23,7 @@ claude mcp add --transport http slgj-finance \
 ```json
 {
   "mcpServers": {
-    "slgj-finance": {
+    "slgj-finance-engine": {
       "command": "npx",
       "args": [
         "-y", "mcp-remote",
@@ -45,7 +45,7 @@ claude mcp add --transport http slgj-finance \
 ```json
 {
   "mcpServers": {
-    "slgj-finance": {
+    "slgj-finance-engine": {
       "url": "https://www.slgj.cn/skills-api/api/v1/mcp",
       "headers": { "Authorization": "***" }
     }

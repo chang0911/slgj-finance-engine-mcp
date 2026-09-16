@@ -31,7 +31,7 @@
 ```json
 {
   "mcpServers": {
-    "slgj-finance": {
+    "slgj-finance-engine": {
       "url": "https://www.slgj.cn/skills-api/api/v1/mcp",
       "headers": { "Authorization": "Bearer sk-mcp-您的令牌" }
     }
