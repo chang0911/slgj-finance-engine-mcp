@@ -1,6 +1,6 @@
-# 工具契约目录（21 个）
+# 工具契约目录（22 个）
 
-> 快照时间：2026-09-15 · 与生产端点 `tools/list` 实时返回一致（可匿名查看）。
+> 快照时间：2026-09-16 · 与生产端点 `tools/list` 实时返回一致（可匿名查看）。
 > 🔑 = 成品类工具，首次调用前需先执行一次 `get_protocol_instructions`（72 小时内免重复握手）。
 
 ---
@@ -70,6 +70,18 @@
       降至目标（默认）/升至目标
 
 ---
+
+## `run_debt_calculator`
+
+借款还本付息计算器：任意单笔或多笔借款的逐期还本付息计划测算（公式口径与丝路E投引擎逐字一致、24项目对账≤0.01万）。能力：①十一种还款方式——按月/季/年等额本息、按月/季/年等额本金、先息后本、到期一次还本付息、按季付息按年还本（项目长贷）、气球贷（开发贷）、自由计划（逐期还本自定）；②分段还款方式（银行重组语义）与分段利率（LPR重定价语义）；③宽限期、多笔借款组合合计、逾期罚息/复利模拟；④双计息口径——默认月对月（E投引擎口径），可选银行算息到日（day_count=act/360|act/365，还款日对日顺延、利息按实际天数，与银行App一致）。输出每笔月度明细+年度汇总+合计+期末清零自检。长周期借款月度明细较大，只需年度汇总可传 yearly_only=true 省流。单位万元。结果仅供参考，不构成投融资建议。
+
+**入参：**
+  - `loans` （必填） array
+      借款数组（1~50 笔），每笔必填 name/amount(万元)/rate(年利率%，或分段数组 [{months,rate}] 合计=term_months)/start(YYYY-MM)/term_months(含宽限期)/repay_type(十一种方式之一，或分段数组 [{months,type}])；可选 start_date+day_count(银行模式)/balloon(气球贷期末款)/grace_months(宽限期)/interest_freq(先息后本:月|季|年)/interest_method(到期一次:simple|compound)/schedule(自由计划)/overdue_events(罚息)
+  - `unit` （可选） string
+      单位标注（默认 万元）
+  - `yearly_only` （可选） boolean
+      true=省流模式：剥离逐月明细 pays，仅返回年度汇总+合计+自检
 
 ## `generate_dashboard`
 
