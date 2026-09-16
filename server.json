@@ -20,13 +20,13 @@
     "due-diligence",
     "irr"
   ],
-  "tools_count": 21,
+  "tools_count": 22,
   "language": [
     "zh-CN",
     "en"
   ],
   "vendor": {
-    "name": "丝路E投 SilkRoad E-Invest",
+    "name": "丝路E投 SLGJ Finance Engine",
     "website": "https://www.slgj.cn",
     "contact": "https://www.slgj.cn"
   },
@@ -40,6 +40,7 @@
     "generate_word_report / generate_dashboard / generate_ppt_html: deliverables (url mode for large files)",
     "run_uncertainty: sensitivity / scenario / Monte-Carlo",
     "estimate_excel / match_cost_indicators: investment estimation + cost-indicator matching",
-    "permitted_cost_excel / run_national_econ: regulated pricing & national econ evaluation"
+    "permitted_cost_excel / run_national_econ: regulated pricing & national econ evaluation",
+    "run_debt_calculator: loan repayment schedule calculator (11 repayment methods, segmented type/rate, grace period, penalty simulation, multi-loan portfolio, dual day-count conventions)"
   ]
 }
