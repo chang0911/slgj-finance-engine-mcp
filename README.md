@@ -9,7 +9,7 @@
 [![MCP](https://img.shields.io/badge/MCP-Remote%20Server-0f8a4d)](https://modelcontextprotocol.io)
 [![Protocol](https://img.shields.io/badge/protocol-streamableHttp-blue)]()
 [![Auth](https://img.shields.io/badge/auth-Bearer%20Token-orange)]()
-[![Tools](https://img.shields.io/badge/tools-22-9333ea)]()
+[![Tools](https://img.shields.io/badge/tools-23-9333ea)]()
 
 [官网](https://www.slgj.cn) · [用户接入说明](docs/onboarding.md) · [工具契约目录](docs/tool-catalog.md) · [令牌获取](https://www.slgj.cn/payment/mcp_access)
 
@@ -19,11 +19,11 @@
 
 ## 简介 | Introduction
 
-**中文**：面向投融资项目的全寿命财务测算引擎。五类输入（项目基础信息 / 建设投资 / 收入 / 成本 / 融资）直算 11 张 E投 原生财务报表与 IRR/MIRR/NPV 指标，一键产出 12 表全公式 Excel、财务可视化看板、可研 / 经济评价 / 国民经济评价 Word 报告。内置六段 73 项报表勾稽体检、收入费用 16 项合理性审查与指标秒级反算。行业唯一支持不整年、非年初、任意月现金流的精确建模，按年粗算 + 按月精算双口径指标，适用于任何投融资项目（不限行业与类型）。数字全部由引擎计算，AI 只组织叙述。
+**中文**：面向投融资项目的全寿命财务测算引擎。五类输入（项目基础信息 / 建设投资 / 收入 / 成本 / 融资）直算 11 张 E投 原生财务报表与 IRR/MIRR/NPV 指标，一键产出 12 表全公式 Excel、财务可视化看板、可研 / 经济评价 / 国民经济评价 Word 报告。内置六段 73 项报表勾稽体检、收入费用 16 项合理性审查与指标秒级反算。行业唯一支持不整年、非年初、任意月现金流的精确建模，按年粗算 + 按月精算双口径指标，适用于任何投融资项目（不限行业与类型）。数字全部由引擎计算，AI 只组织叙述。支持结构化宽进 intake：中英文字段名/万元-亿元/月年粒度/税率格式宽容识别，关键缺项返回问话清单引导补全，非关键自动代默认值并随交付附备注账本；首次成功自动存草稿，改参数只传变化字段秒级重算；文档提取字段可带置信度标记，低置信自动升级为确认问话。
 
 **English**: A full-life financial modeling engine for investment projects. Feed five input files (basic info / construction investment / revenue / cost / financing) and get 11 native financial statements plus IRR/MIRR/NPV indicators, a 12-sheet formula Excel, a financial dashboard, and Word reports (feasibility study / economic evaluation / national economic evaluation) — with a 73-item consistency check, a 16-item revenue/expense review, and second-level goal-seeking. Uniquely supports exact modeling of arbitrary-month cash flows (non-full-year, non-January start) with dual annual/monthly indicator sets. All numbers are computed by the engine; the AI only narrates.
 
-## 核心能力 | Tools (22)
+## 核心能力 | Tools (23)
 
 > 🔑 = 首次调用前需先执行一次 `get_protocol_instructions`（72 小时内免重复握手）。完整参数契约见 [docs/tool-catalog.md](docs/tool-catalog.md)，或匿名 `tools/list` 实时查看。
 
@@ -81,7 +81,7 @@
 - 鉴权：请求头 Authorization: Bearer <我的令牌>（令牌我稍后提供，若你已看到请直接用）
 
 请按你所在环境自行选择接入方式（写入 mcp.json / claude mcp add / MCP 设置界面添加均可），
-连接后调用 tools/list 验证（应返回 22 个工具），再调用一次 get_protocol_instructions 阅读
+连接后调用 tools/list 验证（应返回 23 个工具），再调用一次 get_protocol_instructions 阅读
 接入总则（72 小时内免重复）。完成后告诉我已接入的工具数量，然后等我发项目数据开始测算。
 ```
 

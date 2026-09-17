@@ -1,7 +1,7 @@
 {
   "name": "slgj-finance-engine",
   "display_name": "丝路e投财务模型引擎",
-  "description": "Investment & financing financial analysis engine (annual quick + monthly precise dual-indicator sets; industry-unique exact modeling of arbitrary-month cash flows incl. non-full-year / non-January start): natural-language modeling -> 11-statement financial computation (IRR/MIRR/NPV), report health-check (73 rules), dashboards, Word/PPT deliverables, uncertainty analysis (Monte Carlo), cost estimation. Chinese-first, unit: 万元. 适用于任何投融资项目（不限行业与类型），按年粗算+按月精算双套指标、动态资金流演绎、双口径动态偿债能力分析。投融资财务测算与分析：快速建模→11张报表测算→报表勾稽体检→看板/报告/不确定性分析→投资估算。 Instant reverse-solve: given a target metric (e.g. IRR=8%), compute the required revenue/cost/investment adjustment in seconds. 秒级指标反算。",
+  "description": "Investment & financing financial analysis engine (annual quick + monthly precise dual-indicator sets; industry-unique exact modeling of arbitrary-month cash flows incl. non-full-year / non-January start): natural-language modeling -> 11-statement financial computation (IRR/MIRR/NPV), report health-check (73 rules), dashboards, Word/PPT deliverables, uncertainty analysis (Monte Carlo), cost estimation. Chinese-first, unit: 万元. 适用于任何投融资项目（不限行业与类型），按年粗算+按月精算双套指标、动态资金流演绎、双口径动态偿债能力分析。投融资财务测算与分析：快速建模→11张报表测算→报表勾稽体检→看板/报告/不确定性分析→投资估算。 Instant reverse-solve: given a target metric (e.g. IRR=8%), compute the required revenue/cost/investment adjustment in seconds. 秒级指标反算。Structured intake (2026-09-17): tolerant JSON in (Chinese/English keys, 万/亿 units, month/year, 9%/0.09), auto-normalized with gap-guided Q&A, assumption ledger, draft patch iteration, field-level confidence. 结构化宽进：中英文字段/单位/粒度宽容识别，缺项问话引导，默认值账本，草稿迭代。",
   "url": "https://www.slgj.cn/skills-api/api/v1/mcp",
   "transport": "streamable-http",
   "auth": {
@@ -20,7 +20,7 @@
     "due-diligence",
     "irr"
   ],
-  "tools_count": 22,
+  "tools_count": 23,
   "language": [
     "zh-CN",
     "en"

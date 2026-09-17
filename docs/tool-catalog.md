@@ -1,39 +1,64 @@
-# 工具契约目录（22 个）
+# 工具契约目录（23 个）
 
-> 快照时间：2026-09-16 · 与生产端点 `tools/list` 实时返回一致（可匿名查看）。
+> 快照时间：2026-09-17 · 与生产端点 `tools/list` 实时返回一致（可匿名查看）。
 > 🔑 = 成品类工具，首次调用前需先执行一次 `get_protocol_instructions`（72 小时内免重复握手）。
 
 ---
 
-## `estimate_etou_json` 🔑
+## `get_protocol_instructions`
 
-估算转E投格式：估算数据JSON → construction_data.json（平台侧数据对接用）。前置：需先调 get_protocol_instructions。
+读取Agent接入总则（目录结构/文件命名/落盘存档/成品命名强制规范）。调用 fast_calc_excel 前必须先读（记录72小时内有效）。
 
-**入参：**
-  - `estimate` （必填） object
-  - `project_info` （可选） object
 
 ---
 
-## `estimate_excel` 🔑
+## `get_intake_template`
 
-投资估算：估算数据JSON → 三表Excel（估算表/汇总/技术经济指标，全公式），返回 file_base64（默认返回72h下载短链，return_mode="base64" 可回退）。格式规范先看 get_skill_instructions(skill=estimate)。前置：需先调 get_protocol_instructions。
+结构化采集问卷模板（2026-09-17 二期）：6节字段清单（基础信息/建设/建设规模/收入/费用/融资），每字段标注必填级别（🔴缺失即INTAKE_INCOMPLETE、🟡有默认值并记入assumptions账本）、类型、单位、默认值与业务解释。宿主模型可渲染成采集表单/固定问卷——用户填完的结构天然即为合规 intake JSON，直接提交 fast_calc_reports/fast_calc_excel/run_delivery_bundle 等的 intake 参数。含草稿迭代（draft_id+patch）与字段级置信度包裹协议说明。
+
+
+---
+
+## `get_skill_instructions`
+
+读取技能工作流指令模板：nlmodel=快速测算、estimate=投资估算、ppt=演示文稿、permitted_cost=准许成本定价、national_econ=国民经济评价。
 
 **入参：**
-  - `estimate` （必填） object
-  - `file_name` （可选） string
-  - `return_mode` （可选） string · 枚举: base64 / url
-      成品交付方式：base64（默认，兼容）；url 推荐——返回72h下载短链（file.url），防大文件撑爆上下文，外部客户端建议默认 url
+  - `skill` （必填） string · 枚举: nlmodel / estimate / ppt / permitted_cost / national_econ / feasibility_report / econ_report / national_report
+
+---
+
+## `fast_calc_reports`
+
+财务测算：5类输入txt 或 intake 结构化JSON → 16键JSON（11张报表+指标+IRR/MIRR诊断+资金缺口）。两种入参二选一：files（5类txt全文，适合已按模板生成的会话）或 intake（结构化宽进：字段中英文别名/万元-元-亿元/年月粒度/百分比小数均宽容，系统自动归一化+行业默认值兑底；关键数据缺失返回 INTAKE_INCOMPLETE+gaps 问话清单，按清单向用户补问即可；默认值代入清单在返回 assumptions，交付时须向用户说明；dry_run=true 只校验不出表，适合分步采集中途预检）。_meta.years=年份轴；financial_ratios=行清单[序号,指标名,月口径,年口径]；其余报表=年度矩阵{行名:{年份:数值}}。整体约50~60KB，若客户端响应上限50KB会被截断（尾部表丢失）：可传 tables="表名1,表名2" 分批拉取（省流且截断自检），完整表名清单=invest_exp_fundraising/debt_repayment_schedule/cost_expense_stat/revenue_stat/tax_stat/profit_distribution_stat/cash_flow_stat/balance_sheet/project_invest_cash_flow/investor_cash_flow/financial_ratios；返回JSON末位 complete:true=完整，缺失即被截断（重拉或分批）。数字必须原样引用，禁止自行换算。irr_health/warnings 提示 IRR 未收敛失灵时，以年口径 IRR 与修正后 MIRR 为主判据。
+
+**入参：**
+  - `files` （可选） object
+      5类txt：文件名→全文（与 intake 二选一）
+  - `intake` （可选） object
+      结构化宽进JSON（与 files 二选一，模板见 get_intake_template）：project_name/basic/construction/revenue/cost/financing——中英文字段名、万元/元/亿元、月/年、9%与0.09 宽容识别；任意字段可包裹 {"value":..,"source":"可研P23","confidence":"high|low"}（low自动升级为确认问话）；未提供的非关键字段按行业默认值代入并记入 assumptions 账本；成功返回 draft.id（草稿）
+  - `dry_run` （可选） boolean
+      仅 intake 模式生效：true=只校验与归一化（返回 gaps/assumptions/预览的5类txt 与 draft.id），不出表；分步采集的会话可中途调用预检
+  - `draft_id` （可选） string
+      草稿迭代：传入上次返回的 draft.id，可只传 patch（部分字段深合并，未提及字段保持不变）重算；draft_action="history" 查版本史
+  - `patch` （可选） object
+      草稿补丁：与 draft_id 搭配，只传变化字段（dict递归合并，list整体替换）——用户二次测算的最短路径
+  - `tables` （可选） string
+      可选：分批拉取的表名清单，逗号分隔，带不带.txt均可（如 "revenue_stat,cost_expense_stat"）；合法表名=invest_exp_fundraising/debt_repayment_schedule/cost_expense_stat/revenue_stat/tax_stat/profit_distribution_stat/cash_flow_stat/balance_sheet/project_invest_cash_flow/investor_cash_flow/financial_ratios；返回JSON末位 complete:true=完整，缺失即被截断（重拉或分批）
 
 ---
 
 ## `fast_calc_excel` 🔑
 
-快速测算成品：5类txt → 12表全公式Excel（E投口径）。默认返回72h下载短链（file.url，防大文件撑爆上下文），return_mode="base64" 可回退（超10万字符自动降级短链）。前置：需先调 get_protocol_instructions。
+快速测算成品：5类txt 或 intake 结构化JSON → 12表全公式Excel（E投口径）。11张E投口径财务报表的唯一出品工具（成品说明页含出品标识与运行号可验真）；estimate_excel 产出的是投资估算表、不是财务报表成品，请勿混标。入参 files 与 intake 二选一：intake=结构化宽进（字段别名/单位/粒度宽容，自动归一化+默认值兑底，返回 assumptions 默认值清单与 remaining_questions 建议确认项；关键数据缺失返回 INTAKE_INCOMPLETE+gaps 问话清单；dry_run=true 只校验不出表）。默认返回72h下载短链（file.url，防大文件撑爆上下文），return_mode="base64" 可回退（超10万字符自动降级短链）。前置：需先调 get_protocol_instructions。
 
 **入参：**
-  - `files` （必填） object
-      5类txt：文件名→全文
+  - `files` （可选） object
+      5类txt：文件名→全文（与 intake 二选一）
+  - `intake` （可选） object
+      结构化宽进JSON（与 files 二选一，模板见 get_intake_template）——中英文字段名、万元/元/亿元、月/年、9%与0.09 宽容识别；支持字段级置信度包裹与 draft 草稿迭代（draft_id+patch）；默认值代入记入 assumptions 账本；成功返回 draft.id
+  - `dry_run` （可选） boolean
+      仅 intake 模式生效：true=只校验与归一化（返回 gaps/assumptions/预览的5类txt），不出表
   - `file_name` （可选） string
       成品文件名（可选，缺省自动生成）
   - `return_mode` （可选） string · 枚举: base64 / url
@@ -41,51 +66,27 @@
 
 ---
 
-## `fast_calc_reports`
+## `run_delivery_bundle` 🔑
 
-财务测算：5类输入txt → 16键JSON（11张报表+指标+IRR/MIRR诊断+资金缺口）。_meta.years=年份轴；financial_ratios=行清单[序号,指标名,月口径,年口径]；其余报表=年度矩阵{行名:{年份:数值}}。整体约50~60KB，若客户端响应上限50KB会被截断（尾部表丢失）：可传 tables="表名1,表名2" 分批拉取（省流且截断自检），完整表名清单=invest_exp_fundraising/debt_repayment_schedule/cost_expense_stat/revenue_stat/tax_stat/profit_distribution_stat/cash_flow_stat/balance_sheet/project_invest_cash_flow/investor_cash_flow/financial_ratios；返回JSON末位 complete:true=完整，缺失即被截断（重拉或分批）。数字必须原样引用，禁止自行换算。irr_health/warnings 提示 IRR 未收敛失灵时，以年口径 IRR 与修正后 MIRR 为主判据。
+一键交付流水线（推荐给外部Agent）：5类输入txt 或 intake 结构化JSON → Excel(12表)+财务看板+敏感性分析(quick≈20s)+可选Word报告，成品全部72h短链。耗时25-30s（含word≈28s），建议客户端超时≥60s。单件失败不中断：部分成功时 partial_success=true 且成功件短链照常可用——请按 files[] 引导下载、按 errors[] 修正后单独重跑，勿向用户表述为「全部失败」。report 提供合规结构（econ 6章/feasibility 8章标准目录+免责句）时追加 Word。前置：需先调 get_protocol_instructions。
 
 **入参：**
   - `files` （必填） object
       5类txt：文件名→全文
-  - `tables` （可选） string
-      可选：分批拉取的表名清单，逗号分隔，带不带.txt均可（如 "revenue_stat,cost_expense_stat"）；合法表名=invest_exp_fundraising/debt_repayment_schedule/cost_expense_stat/revenue_stat/tax_stat/profit_distribution_stat/cash_flow_stat/balance_sheet/project_invest_cash_flow/investor_cash_flow/financial_ratios；返回JSON末位 complete:true=完整，缺失即被截断（重拉或分批）
+  - `report` （可选） object
+      可选：Word报告结构（meta/chapters/sections，需符合 report_type 标准目录+免责句；缺省不出 Word）
+  - `report_type` （可选） string · 枚举: econ / feasibility
+      Word报告类型（默认 econ）
+  - `quick` （可选） boolean
+      敏感性分析 quick 模式（默认 true≈20s；false=完整模式1-3分钟，慎用）
+  - `file_name` （可选） string
+      可选：Word报告成品文件名（仅 report 提供、bundle 含 Word 时生效；其余件名自动生成）
 
 ---
-
-## `fast_calc_solve`
-
-指标反算（秒级，二分法+引擎精算）：给定5类输入txt与目标指标值（如全投资税后IRR=8%），反推收入/成本/建设投资的调整幅度。杠杆（knob）：revenue_pct 收入整体±% / cost_pct 成本整体±% / invest_pct 建设投资±%（含税金额+进度款同步等比+闭合守卫）。目标（target）：irr_all_post/irr_all_pre/irr_cap_post/irr_cap_pre/irr_inv_pre/payback/dpayback/npv_all_post/npv_all_pre/npv_cap_post/npv_cap_pre/npv_inv_pre/npvr/pi（14项，IRR%/NPV万元/回收期月同报表原生口径）。want：down（默认，降到目标）/up（升到目标）。建议先用 fast_calc_reports 查看基准值再反算。返回语义：ok=true+nochange=true=已达标无需调整（见 msg）；ok=false+reason=range=探索范围内无解（message 含当前值→可达极限值，应如实告知用户并建议换杠杆或结构性调整）；k 逼近±90%/+300% 边界时 note 附⚠️边界警告（返回边界最优解而非精确达标解）。
-
-**入参：**
-  - `files` （必填） object
-      5类输入txt：文件名→全文
-  - `knob` （必填） string · 枚举: revenue_pct / cost_pct / invest_pct
-      反算杠杆：收入/成本/建设投资 整体±%
-  - `target` （必填） string · 枚举: irr_all_post / irr_all_pre / irr_cap_post / irr_cap_pre / irr_inv_pre / payback / dpayback / npv_all_post / npv_all_pre / npv_cap_post / npv_cap_pre / npv_inv_pre / npvr / pi
-      目标指标
-  - `goal` （必填） number
-      目标值（IRR与回收期同报表原生口径：%/月）
-  - `want` （可选） string · 枚举: down / up
-      降至目标（默认）/升至目标
-
----
-
-## `run_debt_calculator`
-
-借款还本付息计算器：任意单笔或多笔借款的逐期还本付息计划测算（公式口径与丝路E投引擎逐字一致、24项目对账≤0.01万）。能力：①十一种还款方式——按月/季/年等额本息、按月/季/年等额本金、先息后本、到期一次还本付息、按季付息按年还本（项目长贷）、气球贷（开发贷）、自由计划（逐期还本自定）；②分段还款方式（银行重组语义）与分段利率（LPR重定价语义）；③宽限期、多笔借款组合合计、逾期罚息/复利模拟；④双计息口径——默认月对月（E投引擎口径），可选银行算息到日（day_count=act/360|act/365，还款日对日顺延、利息按实际天数，与银行App一致）。输出每笔月度明细+年度汇总+合计+期末清零自检。长周期借款月度明细较大，只需年度汇总可传 yearly_only=true 省流。单位万元。结果仅供参考，不构成投融资建议。
-
-**入参：**
-  - `loans` （必填） array
-      借款数组（1~50 笔），每笔必填 name/amount(万元)/rate(年利率%，或分段数组 [{months,rate}] 合计=term_months)/start(YYYY-MM)/term_months(含宽限期)/repay_type(十一种方式之一，或分段数组 [{months,type}])；可选 start_date+day_count(银行模式)/balloon(气球贷期末款)/grace_months(宽限期)/interest_freq(先息后本:月|季|年)/interest_method(到期一次:simple|compound)/schedule(自由计划)/overdue_events(罚息)
-  - `unit` （可选） string
-      单位标注（默认 万元）
-  - `yearly_only` （可选） boolean
-      true=省流模式：剥离逐月明细 pays，仅返回年度汇总+合计+自检
 
 ## `generate_dashboard`
 
-财务看板（动态资金流演绎+双口径动态偿债能力分析）→ 单文件HTML（约1.1MB，侧边栏导航：总览/动态资金流演绎/敏感性热力/双口径动态偿债能力，ECharts内联可离线查看），返回 file_base64（约1.1MB大文件，默认返回72h下载短链（return_mode="base64" 可回退））。两种用法二选一：①推荐 input 传完整五类输入（project_basic_info/construction_data/revenue_data/cost_data/financing_data 的 .txt），由平台引擎计算标准11张报表（与平台后续分析同源同口径，勿自行拼装报表）；②reports 传E投原生导出的11张标准报表txt+input附 project_basic_info.txt（自行拼装的精简表会被守门拦截）。
+财务看板（动态资金流演绎+双口径动态偿债能力分析）→ 单文件HTML（支持 intake 结构化JSON替代 input 五类txt）（约1.1MB，侧边栏导航：总览/动态资金流演绎/敏感性热力/双口径动态偿债能力，ECharts内联可离线查看），返回 file_base64（约1.1MB大文件，默认返回72h下载短链（return_mode="base64" 可回退））。两种用法二选一：①推荐 input 传完整五类输入（project_basic_info/construction_data/revenue_data/cost_data/financing_data 的 .txt），由平台引擎计算标准11张报表（与平台后续分析同源同口径，勿自行拼装报表）；②reports 传E投原生导出的11张标准报表txt+input附 project_basic_info.txt（自行拼装的精简表会被守门拦截）。
 
 **入参：**
   - `reports` （可选） object
@@ -94,20 +95,6 @@
       用法①：完整五类输入txt（推荐，平台计算标准报表）；用法②：至少含 project_basic_info.txt
   - `return_mode` （可选） string · 枚举: base64 / url
       成品交付方式：base64（默认，兼容）；url 推荐——返回72h下载短链（file.url），防大文件撑爆上下文，外部客户端建议默认 url
-
----
-
-## `generate_ppt_html` 🔑
-
-演示文稿封装：内容HTML → 自包含HTML（Plotly.js内联，离线可用）。先用 ppt_extract_data 取数并撰写内容，再调本工具出成品（成品常达2~4MB，默认返回72h下载短链（return_mode="base64" 可回退））。HTML结构要求先看 get_skill_instructions(skill=ppt)。前置：需先调 get_protocol_instructions。
-
-**入参：**
-  - `content_html` （必填） string
-      完整内容HTML文档
-  - `file_name` （可选） string
-      成品文件名（.html）
-  - `return_mode` （可选） string · 枚举: base64 / url
-      成品交付方式：base64（默认，兼容）；url 推荐——返回72h下载短链（file.url），防大文件（本工具成品常达MB级）撑爆上下文，外部客户端建议默认 url
 
 ---
 
@@ -143,41 +130,36 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
 
 ---
 
-## `get_chapter_data`
+## `estimate_excel` 🔑
 
-报告章节取数：可研报告(feasibility,8章)或经济评价报告(econ,6章)按章节返回结构化数据+写作要点，供撰写后走 generate_word_report 出稿。chapter=list 先看目录；数据源 p_id(+stage) 或 reports 对象（无平台项目号时可先 fast_calc_reports 生成11张表再传入）。数字一律引用返回值。模板先看 get_skill_instructions(skill=feasibility_report|econ_report)。 各章返回的 data 键可作 generate_word_report 段落占位符 {{章节.键[.年份|.total]}}（比率可|pct）——数字由系统直灌，推荐用。
+投资估算：估算数据JSON → 三表Excel（估算表/汇总/技术经济指标，全公式）——注意：这是投资估算表，不是财务报表；需要11张E投口径财务报表请改用 fast_calc_excel。返回 file_base64（默认返回72h下载短链，return_mode="base64" 可回退）。格式规范先看 get_skill_instructions(skill=estimate)。前置：需先调 get_protocol_instructions。
 
 **入参：**
-  - `report_type` （必填） string · 枚举: feasibility / econ
-      报告类型
-  - `chapter` （可选） string
-      章节id（list=目录）
-  - `p_id` （可选） string
-      E投项目号（纯数字，与 reports 二选一）
-  - `stage` （可选） string · 枚举: scheme_stage / contract_stage / operating_stage
-      默认 scheme_stage
-  - `reports` （可选） object
-      直接提交报表（与 p_id 二选一）：{E投标准报表文件名: 原生txt全文}，或 JSON {文件名:{行名:{年份:数值}}} / [[表头行],[数据行]...] 二维数组（financial_ratios 传 [{idx,name,m,a}] 列表），或 fast_calc_reports 返回的 tables 整包；可子集
-  - `files` （可选） object
-      5类输入txt：文件名→全文（与 p_id/reports 三选一——引擎直算标准报表后取章节值，外部会话推荐）
+  - `estimate` （必填） object
+  - `file_name` （可选） string
+  - `return_mode` （可选） string · 枚举: base64 / url
+      成品交付方式：base64（默认，兼容）；url 推荐——返回72h下载短链（file.url），防大文件撑爆上下文，外部客户端建议默认 url
 
 ---
 
-## `get_protocol_instructions`
+## `estimate_etou_json` 🔑
 
-读取Agent接入总则（目录结构/文件命名/落盘存档/成品命名强制规范）。调用 fast_calc_excel 前必须先读（记录72小时内有效）。
+估算转E投格式：估算数据JSON → construction_data.json（平台侧数据对接用）。前置：需先调 get_protocol_instructions。
 
 **入参：**
-  无参数
+  - `estimate` （必填） object
+  - `project_info` （可选） object
 
 ---
 
-## `get_skill_instructions`
+## `ppt_extract_data` 🔑
 
-读取技能工作流指令模板：nlmodel=快速测算、estimate=投资估算、ppt=演示文稿、permitted_cost=准许成本定价、national_econ=国民经济评价。
+演示文稿取数：E投报表txt → 结构化数据JSON（供撰写PPT文稿内容，不必手抄报表数字）。dimension: all|debt|profit|investment|cashflow|operation。前置：需先调 get_protocol_instructions。
 
 **入参：**
-  - `skill` （必填） string · 枚举: nlmodel / estimate / ppt / permitted_cost / national_econ / feasibility_report / econ_report / national_report
+  - `reports` （必填） object
+      至少1张报表txt：文件名→全文
+  - `dimension` （可选） string · 枚举: all / cashflow / debt / investment / operation / profit
 
 ---
 
@@ -207,56 +189,17 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
 
 ---
 
-## `ppt_extract_data` 🔑
+## `generate_ppt_html` 🔑
 
-演示文稿取数：E投报表txt → 结构化数据JSON（供撰写PPT文稿内容，不必手抄报表数字）。dimension: all|debt|profit|investment|cashflow|operation。前置：需先调 get_protocol_instructions。
-
-**入参：**
-  - `reports` （必填） object
-      至少1张报表txt：文件名→全文
-  - `dimension` （可选） string · 枚举: all / cashflow / debt / investment / operation / profit
-
----
-
-## `query_usage`
-
-用量统计：查询自己当月（或指定 YYYY-MM）的调用量/下行流量/平均耗时与分端点统计。
+演示文稿封装：内容HTML → 自包含HTML（Plotly.js内联，离线可用）。先用 ppt_extract_data 取数并撰写内容，再调本工具出成品（成品常达2~4MB，默认返回72h下载短链（return_mode="base64" 可回退））。HTML结构要求先看 get_skill_instructions(skill=ppt)。前置：需先调 get_protocol_instructions。
 
 **入参：**
-  - `month` （可选） string
-      YYYY-MM，缺省当月
-
----
-
-## `run_delivery_bundle` 🔑
-
-一键交付流水线（推荐给外部Agent）：5类输入txt → Excel(12表)+财务看板+敏感性分析(quick≈20s)+可选Word报告，成品全部72h短链。耗时25-30s（含word≈28s），建议客户端超时≥60s。单件失败不中断：返回 files 成功件清单+errors 失败明细。report 提供合规结构（econ 6章/feasibility 8章标准目录+免责句）时追加 Word。前置：需先调 get_protocol_instructions。
-
-**入参：**
-  - `files` （必填） object
-      5类txt：文件名→全文
-  - `report` （可选） object
-      可选：Word报告结构（meta/chapters/sections，需符合 report_type 标准目录+免责句；缺省不出 Word）
-  - `report_type` （可选） string · 枚举: econ / feasibility
-      Word报告类型（默认 econ）
-  - `quick` （可选） boolean
-      敏感性分析 quick 模式（默认 true≈20s；false=完整模式1-3分钟，慎用）
+  - `content_html` （必填） string
+      完整内容HTML文档
   - `file_name` （可选） string
-      可选：Word报告成品文件名（仅 report 提供、bundle 含 Word 时生效；其余件名自动生成）
-
----
-
-## `run_model_check`
-
-报表勾稽体检：E/A/F/B/C/D六段73项勾稽校验（恒等式/跨表一致性/财务逻辑/表内构成/行业易错点/综合评价评级），秒级返回逐项结果（✅通过/⚠️提示/❌失败/ℹ️信息）。两种用法：①传 p_id(+stage) 按平台项目号定位自己的项目；②直接传 reports 对象（可子集，缺的报表自动标数据缺失）。无平台项目号时可先 fast_calc_reports 生成11张表再传入。交付前自检或向用户展示报表质量用。
-
-**入参：**
-  - `p_id` （可选） string
-      E投项目号（纯数字，与 reports 二选一）
-  - `stage` （可选） string · 枚举: scheme_stage / contract_stage / operating_stage
-      默认 scheme_stage
-  - `reports` （可选） object
-      直接提交报表（与 p_id 二选一）：{E投标准报表文件名: 原生txt全文}，或 JSON {文件名:{行名:{年份:数值}}} / [[表头行],[数据行]...] 二维数组（financial_ratios 传 [{idx,name,m,a}] 列表），或 fast_calc_reports 返回的 tables 整包；可子集
+      成品文件名（.html）
+  - `return_mode` （可选） string · 枚举: base64 / url
+      成品交付方式：base64（默认，兼容）；url 推荐——返回72h下载短链（file.url），防大文件（本工具成品常达MB级）撑爆上下文，外部客户端建议默认 url
 
 ---
 
@@ -276,23 +219,9 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
 
 ---
 
-## `run_revenue_review`
-
-收入费用合理性审查：R收入(5项)/C费用(6项)/X交叉(5项)共16项，🔴明显不合理/🟡需关注/🟢正常/ℹ️数值输出待联网对标（需benchmark/地方定价的项已给测算数值与判定阈值，宿主AI联网比对后可自行定级）。双输入：p_id(+stage) 或 reports 对象（无平台项目号时可先 fast_calc_reports 生成11张表再传入）。
-
-**入参：**
-  - `p_id` （可选） string
-      E投项目号（纯数字，与 reports 二选一）
-  - `stage` （可选） string · 枚举: scheme_stage / contract_stage / operating_stage
-      默认 scheme_stage
-  - `reports` （可选） object
-      直接提交报表（与 p_id 二选一）：{E投标准报表文件名: 原生txt全文}，或 JSON {文件名:{行名:{年份:数值}}} / [[表头行],[数据行]...] 二维数组（financial_ratios 传 [{idx,name,m,a}] 列表），或 fast_calc_reports 返回的 tables 整包；可子集
-
----
-
 ## `run_uncertainty` 🔑
 
-不确定性分析：引擎真算敏感性/情景/蒙特卡洛+总报告。两种用法：①p_id(+stage) 定位自己的平台项目，交付物落盘用户工作区并返回文件清单；②files 直传5类输入txt（无平台项目号场景，可由 fast_calc_reports 造数闭环产出），成品入平台文件库返回72h下载短链清单（url 可直接交给用户浏览器下载）。不回base64。耗时1~3分钟，超时设≥300秒。前置：需先调 get_protocol_instructions。
+不确定性分析：引擎真算敏感性/情景/蒙特卡洛+总报告（支持 intake 结构化JSON替代 files）。两种用法：①p_id(+stage) 定位自己的平台项目，交付物落盘用户工作区并返回文件清单；②files 直传5类输入txt（无平台项目号场景，可由 fast_calc_reports 造数闭环产出），成品入平台文件库返回72h下载短链清单（url 可直接交给用户浏览器下载）。不回base64。耗时1~3分钟，超时设≥300秒。前置：需先调 get_protocol_instructions。
 
 **入参：**
   - `p_id` （可选） string
@@ -308,6 +237,96 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
       快速模式：跳过情景与蒙特卡洛，敏感性粗网格（单因素5点/双因素9×9）+总报告，实测约20~25秒，客户端超时30秒可用；需要精细网格（9点/21×21）与蒙特卡洛时走完整分析（1-3分钟）并加大客户端超时
   - `factors` （可选） string
       逗号分隔敏感性因子名单（可选）
+
+---
+
+## `run_model_check`
+
+报表勾稽体检：E/A/F/B/C/D六段73项勾稽校验（恒等式/跨表一致性/财务逻辑/表内构成/行业易错点/综合评价评级），秒级返回逐项结果（✅通过/⚠️提示/❌失败/ℹ️信息）。两种用法：①传 p_id(+stage) 按平台项目号定位自己的项目；②直接传 reports 对象（可子集，缺的报表自动标数据缺失）。无平台项目号时可先 fast_calc_reports 生成11张表再传入。交付前自检或向用户展示报表质量用。
+
+**入参：**
+  - `p_id` （可选） string
+      E投项目号（纯数字，与 reports 二选一）
+  - `stage` （可选） string · 枚举: scheme_stage / contract_stage / operating_stage
+      默认 scheme_stage
+  - `reports` （可选） object
+      直接提交报表（与 p_id 二选一）：{E投标准报表文件名: 原生txt全文}，或 JSON {文件名:{行名:{年份:数值}}} / [[表头行],[数据行]...] 二维数组（financial_ratios 传 [{idx,name,m,a}] 列表），或 fast_calc_reports 返回的 tables 整包；可子集
+
+---
+
+## `get_chapter_data`
+
+报告章节取数：可研报告(feasibility,8章)或经济评价报告(econ,6章)按章节返回结构化数据+写作要点，供撰写后走 generate_word_report 出稿。chapter=list 先看目录；数据源 p_id(+stage) 或 reports 对象（无平台项目号时可先 fast_calc_reports 生成11张表再传入）。数字一律引用返回值。模板先看 get_skill_instructions(skill=feasibility_report|econ_report)。 各章返回的 data 键可作 generate_word_report 段落占位符 {{章节.键[.年份|.total]}}（比率可|pct）——数字由系统直灌，推荐用。
+
+**入参：**
+  - `report_type` （必填） string · 枚举: feasibility / econ
+      报告类型
+  - `chapter` （可选） string
+      章节id（list=目录）
+  - `p_id` （可选） string
+      E投项目号（纯数字，与 reports 二选一）
+  - `stage` （可选） string · 枚举: scheme_stage / contract_stage / operating_stage
+      默认 scheme_stage
+  - `reports` （可选） object
+      直接提交报表（与 p_id 二选一）：{E投标准报表文件名: 原生txt全文}，或 JSON {文件名:{行名:{年份:数值}}} / [[表头行],[数据行]...] 二维数组（financial_ratios 传 [{idx,name,m,a}] 列表），或 fast_calc_reports 返回的 tables 整包；可子集
+  - `files` （可选） object
+      5类输入txt：文件名→全文（与 p_id/reports 三选一——引擎直算标准报表后取章节值，外部会话推荐）
+
+---
+
+## `run_revenue_review`
+
+收入费用合理性审查：R收入(5项)/C费用(6项)/X交叉(5项)共16项，🔴明显不合理/🟡需关注/🟢正常/ℹ️数值输出待联网对标（需benchmark/地方定价的项已给测算数值与判定阈值，宿主AI联网比对后可自行定级）。双输入：p_id(+stage) 或 reports 对象（无平台项目号时可先 fast_calc_reports 生成11张表再传入）。
+
+**入参：**
+  - `p_id` （可选） string
+      E投项目号（纯数字，与 reports 二选一）
+  - `stage` （可选） string · 枚举: scheme_stage / contract_stage / operating_stage
+      默认 scheme_stage
+  - `reports` （可选） object
+      直接提交报表（与 p_id 二选一）：{E投标准报表文件名: 原生txt全文}，或 JSON {文件名:{行名:{年份:数值}}} / [[表头行],[数据行]...] 二维数组（financial_ratios 传 [{idx,name,m,a}] 列表），或 fast_calc_reports 返回的 tables 整包；可子集
+
+---
+
+## `query_usage`
+
+用量统计：查询自己当月（或指定 YYYY-MM）的调用量/下行流量/平均耗时与分端点统计。
+
+**入参：**
+  - `month` （可选） string
+      YYYY-MM，缺省当月
+
+---
+
+## `fast_calc_solve`
+
+指标反算（秒级，二分法+引擎精算）：给定5类输入txt与目标指标值（如全投资税后IRR=8%），反推收入/成本/建设投资的调整幅度。杠杆（knob）：revenue_pct 收入整体±% / cost_pct 成本整体±% / invest_pct 建设投资±%（含税金额+进度款同步等比+闭合守卫）。目标（target）：irr_all_post/irr_all_pre/irr_cap_post/irr_cap_pre/irr_inv_pre/payback/dpayback/npv_all_post/npv_all_pre/npv_cap_post/npv_cap_pre/npv_inv_pre/npvr/pi（14项，IRR%/NPV万元/回收期月同报表原生口径）。want：down（默认，降到目标）/up（升到目标）。建议先用 fast_calc_reports 查看基准值再反算。返回语义：ok=true+nochange=true=已达标无需调整（见 msg）；ok=false+reason=range=探索范围内无解（message 含当前值→可达极限值，应如实告知用户并建议换杠杆或结构性调整）；k 逼近±90%/+300% 边界时 note 附⚠️边界警告（返回边界最优解而非精确达标解）。
+
+**入参：**
+  - `files` （必填） object
+      5类输入txt：文件名→全文
+  - `knob` （必填） string · 枚举: revenue_pct / cost_pct / invest_pct
+      反算杠杆：收入/成本/建设投资 整体±%
+  - `target` （必填） string · 枚举: irr_all_post / irr_all_pre / irr_cap_post / irr_cap_pre / irr_inv_pre / payback / dpayback / npv_all_post / npv_all_pre / npv_cap_post / npv_cap_pre / npv_inv_pre / npvr / pi
+      目标指标
+  - `goal` （必填） number
+      目标值（IRR与回收期同报表原生口径：%/月）
+  - `want` （可选） string · 枚举: down / up
+      降至目标（默认）/升至目标
+
+---
+
+## `run_debt_calculator`
+
+借款还本付息计算器：任意单笔或多笔借款的逐期还本付息计划测算（公式口径与丝路E投引擎逐字一致、24项目对账≤0.01万）。能干的事：①十一种还款方式——按月/季/年等额本息、按月/季/年等额本金、先息后本、到期一次还本付息、按季付息按年还本（项目长贷）、气球贷（开发贷）、自由计划（逐期还本自定）；②分段还款方式（前若干年一种后换一种，银行重组语义）与分段利率（LPR重定价语义）；③宽限期、多笔借款组合合计、逾期罚息/复利模拟；④双计息口径——默认月对月（E投引擎口径），可选银行算息到日（day_count=act/360|act/365，还款日对日顺延、利息按实际天数，与银行App一致）。输出每笔月度明细+年度汇总+合计+期末清零自检。长周期借款月度明细较大，只需年度汇总可传 yearly_only=true 省流。单位万元。结果仅供参考，不构成投融资建议。
+
+**入参：**
+  - `loans` （必填） array
+      借款数组，每笔必填：name/amount(万元)/rate(年利率%，或分段数组[{months,rate}]合计=term_months)/start(YYYY-MM)/term_months(含宽限期)/repay_type(十一种方式之一，或分段数组[{months,type}]);可选：start_date+day_count(银行模式)/balloon(气球贷期末款)/grace_months(宽限期)/interest_freq(先息后本:月|季|年)/interest_method(到期一次:simple|compound)/schedule(自由计划[{month,capital,interest?}])/overdue_events([{month,delay_months,penalty_add_pct,compound}])
+  - `unit` （可选） string
+      单位标注（默认 万元）
+  - `yearly_only` （可选） boolean
+      true=省流模式：剥离逐月明细pays，仅返回年度汇总+合计+自检
 
 ---
 
