@@ -304,7 +304,7 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
 
 **入参：**
   - `files` （必填） object
-      5类输入txt：文件名→全文
+      **固定 5 键的 txt 全文对象**：`project_basic_info.txt` / `construction_data.txt` / `revenue_data.txt` / `cost_data.txt` / `financing_data.txt` → 各自的 txt **全文内容**。**不是文件路径/URL/数组/base64**；5 键缺一不可、不认其他键；本工具不支持 intake 结构化入口（只认 files，如需宽进请改用 fast_calc_reports）
   - `knob` （必填） string · 枚举: revenue_pct / cost_pct / invest_pct
       反算杠杆：收入/成本/建设投资 整体±%
   - `target` （必填） string · 枚举: irr_all_post / irr_all_pre / irr_cap_post / irr_cap_pre / irr_inv_pre / payback / dpayback / npv_all_post / npv_all_pre / npv_cap_post / npv_cap_pre / npv_inv_pre / npvr / pi
@@ -313,6 +313,29 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
       目标值（IRR与回收期同报表原生口径：%/月）
   - `want` （可选） string · 枚举: down / up
       降至目标（默认）/升至目标
+
+**调用示例（files 正确传法）：**
+
+```json
+{
+  "files": {
+    "project_basic_info.txt": "项目名称 示例项目\n建设期年数 2\n运营期年数 10\n……（此处粘贴该 txt 全文）",
+    "construction_data.txt": "……（txt 全文）",
+    "revenue_data.txt": "……（txt 全文）",
+    "cost_data.txt": "……（txt 全文）",
+    "financing_data.txt": "……（txt 全文）"
+  },
+  "knob": "revenue_pct",
+  "target": "irr_all_post",
+  "goal": 8,
+  "want": "down"
+}
+```
+
+**files 三种典型报错（均为 BAD_PARAM，逐字对照）：**
+- 传了数组/路径列表而非对象 → `files 必须是 {5类输入文件名: 全文} 对象`
+- 5 类缺了某几类 → `缺少输入文件：revenue_data.txt…`
+- 键名写错或多传无关文件 → `files 的键必须是：project_basic_info.txt、construction_data.txt、…`
 
 ---
 
