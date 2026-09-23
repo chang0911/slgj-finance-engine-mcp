@@ -129,7 +129,7 @@
 | draft_manage | 输入草稿列表/删除/导出（数据可控） | — |
 | submit_feedback | 向平台提交使用反馈 | — |
 
-> 每个工具的参数以客户端 `tools/list` 返回的 inputSchema 为准。三种数据入口通用：①`files` 直接传 5 类输入 txt（project_basic_info / construction_data / revenue_data / cost_data / financing_data）；②`draft_id` 复用/修改上次输入草稿（files 调用成功自动保存并返回 draft_id，30 天滚动有效、每次使用自动续期；单独传=原样复用，+files=只传变化的文件，无需全量重传；`draft_manage` 可列表/删除/导出，数据可控）；③`p_id` 传平台项目号（**只能访问令牌归属账号自己的项目**）。
+> 每个工具的参数以客户端 `tools/list` 返回的 inputSchema 为准。三种数据入口通用：①`files` 直接传 5 类输入 txt（project_basic_info / construction_data / revenue_data / cost_data / financing_data）；②`draft_id` 复用/修改上次输入草稿（files 调用成功自动保存并返回 draft_id，30 天滚动有效、每次使用自动续期；单独传=原样复用，+files=只传变化的文件，无需全量重传；`draft_manage` 可列表/删除/导出，数据可控；用户要求删除/导出输入数据时宿主必须调 draft_manage 执行并如实告知结果）；③`p_id` 传平台项目号（**只能访问令牌归属账号自己的项目**）。
 
 ---
 
