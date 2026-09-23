@@ -34,7 +34,9 @@
 
 **入参：**
   - `files` （可选） object
-      5类txt：文件名→全文（与 intake 二选一）
+      5类txt：文件名→全文（与 intake/draft_id 三选一）
+  - `draft_id` （可选） string
+      复用/修改上次输入草稿：单独传=原样复用；+files=只传变化文件（部分替换合并）。成功自动存草稿（30天滚动，draft_manage 可列表/删除/导出）
   - `intake` （可选） object
       结构化宽进JSON（与 files 二选一，模板见 get_intake_template）：project_name/basic/construction/revenue/cost/financing——中英文字段名、万元/元/亿元、月/年、9%与0.09 宽容识别；任意字段可包裹 {"value":..,"source":"可研P23","confidence":"high|low"}（low自动升级为确认问话）；未提供的非关键字段按行业默认值代入并记入 assumptions 账本；成功返回 draft.id（草稿）
   - `dry_run` （可选） boolean
@@ -54,7 +56,9 @@
 
 **入参：**
   - `files` （可选） object
-      5类txt：文件名→全文（与 intake 二选一）
+      5类txt：文件名→全文（与 intake/draft_id 三选一）
+  - `draft_id` （可选） string
+      复用/修改上次输入草稿：单独传=原样复用；+files=只传变化文件（部分替换合并）。成功自动存草稿（30天滚动，draft_manage 可列表/删除/导出）
   - `intake` （可选） object
       结构化宽进JSON（与 files 二选一，模板见 get_intake_template）——中英文字段名、万元/元/亿元、月/年、9%与0.09 宽容识别；支持字段级置信度包裹与 draft 草稿迭代（draft_id+patch）；默认值代入记入 assumptions 账本；成功返回 draft.id
   - `dry_run` （可选） boolean
@@ -71,8 +75,10 @@
 一键交付流水线（推荐给外部Agent）：5类输入txt 或 intake 结构化JSON → Excel(12表)+财务看板+敏感性分析(quick≈20s)+可选Word报告，成品全部72h短链。耗时25-30s（含word≈28s），建议客户端超时≥60s。单件失败不中断：部分成功时 partial_success=true 且成功件短链照常可用——请按 files[] 引导下载、按 errors[] 修正后单独重跑，勿向用户表述为「全部失败」。report 提供合规结构（econ 6章/feasibility 8章标准目录+免责句）时追加 Word。前置：需先调 get_protocol_instructions。
 
 **入参：**
-  - `files` （必填） object
-      5类txt：文件名→全文
+  - `files` （必填，或改传 draft_id） object
+      5类txt：文件名→全文（draft_id+files 可只传变化的文件）
+  - `draft_id` （可选） string
+      复用/修改上次输入草稿：单独传=原样复用；+files=只传变化文件。成功自动存草稿（30天滚动，draft_manage 可管理）
   - `report` （可选） object
       可选：Word报告结构（meta/chapters/sections，需符合 report_type 标准目录+免责句；缺省不出 Word）
   - `report_type` （可选） string · 枚举: econ / feasibility
@@ -303,8 +309,10 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
 指标反算（秒级，二分法+引擎精算）：给定5类输入txt与目标指标值（如全投资税后IRR=8%），反推收入/成本/建设投资的调整幅度。杠杆（knob）：revenue_pct 收入整体±% / cost_pct 成本整体±% / invest_pct 建设投资±%（含税金额+进度款同步等比+闭合守卫）。目标（target）：irr_all_post/irr_all_pre/irr_cap_post/irr_cap_pre/irr_inv_pre/payback/dpayback/npv_all_post/npv_all_pre/npv_cap_post/npv_cap_pre/npv_inv_pre/npvr/pi（14项，IRR%/NPV万元/回收期月同报表原生口径）。want：down（默认，降到目标）/up（升到目标）。建议先用 fast_calc_reports 查看基准值再反算。返回语义：ok=true+nochange=true=已达标无需调整（见 msg）；ok=false+reason=range=探索范围内无解（message 含当前值→可达极限值，应如实告知用户并建议换杠杆或结构性调整）；k 逼近±90%/+300% 边界时 note 附⚠️边界警告（返回边界最优解而非精确达标解）。
 
 **入参：**
-  - `files` （必填） object
+  - `files` （必填，或改传 draft_id） object
       **固定 5 键的 txt 全文对象**：`project_basic_info.txt` / `construction_data.txt` / `revenue_data.txt` / `cost_data.txt` / `financing_data.txt` → 各自的 txt **全文内容**。**不是文件路径/URL/数组/base64**；5 键缺一不可、不认其他键；本工具不支持 intake 结构化入口（只认 files，如需宽进请改用 fast_calc_reports）
+  - `draft_id` （可选） string
+      复用/修改上次输入草稿：单独传=原样复用；+files=只传变化文件（部分替换合并）。成功自动存草稿（30天滚动，draft_manage 可列表/删除/导出）
   - `knob` （必填） string · 枚举: revenue_pct / cost_pct / invest_pct
       反算杠杆：收入/成本/建设投资 整体±%
   - `target` （必填） string · 枚举: irr_all_post / irr_all_pre / irr_cap_post / irr_cap_pre / irr_inv_pre / payback / dpayback / npv_all_post / npv_all_pre / npv_cap_post / npv_cap_pre / npv_inv_pre / npvr / pi
@@ -350,6 +358,20 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
       单位标注（默认 万元）
   - `yearly_only` （可选） boolean
       true=省流模式：剥离逐月明细pays，仅返回年度汇总+合计+自检
+
+---
+
+## `draft_manage`
+
+输入草稿管理（2026-09-23 新增）：files 类调用（`fast_calc_reports` / `fast_calc_excel` / `fast_calc_solve` / `run_delivery_bundle` / `generate_dashboard` 五类直算）成功后**自动保存输入草稿**并在返回体附 `draft_id` + `draft_note`（30 天滚动有效，每次使用自动续期）。本工具是「数据可控」承诺的闭环入口。
+
+**入参：**
+  - `action` （必填） string · 枚举: list / delete / export
+      list=列出我的草稿；delete=删除（立即生效）；export=打包导出 zip（72h 下载短链）
+  - `draft_id` （可选） string
+      delete 必填；export 可选（缺省=导出全部）
+
+**草稿复用语法（配合计算类工具）：** 计算工具新增 `draft_id` 参数——单独传 = 原样复用上次输入；`draft_id + files` = 只传变化的文件（部分替换合并，其余沿用草稿），无需全量重传。
 
 ---
 

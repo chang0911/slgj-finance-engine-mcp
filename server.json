@@ -20,7 +20,7 @@
     "due-diligence",
     "irr"
   ],
-  "tools_count": 23,
+  "tools_count": 25,
   "language": [
     "zh-CN",
     "en"
@@ -32,7 +32,7 @@
   },
   "capabilities": [
     "fast_calc_solve: second-level goal-seeking (given target IRR/NPV, compute required revenue/cost/investment adjustment)",
-    "submit_feedback / query_usage: in-band user feedback & usage stats",
+    "draft_manage: input draft list/delete/export (data control); submit_feedback / query_usage: in-band user feedback & usage stats",
     "fast_calc_reports: 5-type input txt -> 16-key JSON (11 statements + indicators + diagnostics)",
     "run_model_check: 73-rule statement cross-check (6 categories)",
     "run_revenue_review: revenue/expense reasonableness review (16 items)",

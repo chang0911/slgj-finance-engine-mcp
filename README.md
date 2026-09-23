@@ -51,7 +51,7 @@
 | 用量与反馈 | `query_usage` | 查询自己当月调用量 / 流量 / 耗时统计 |
 | | `submit_feedback` | 用户反馈直达平台 |
 
-**两种数据入口（通用）**：① `files` 直接传 5 类输入 txt（`project_basic_info.txt` / `construction_data.txt` / `revenue_data.txt` / `cost_data.txt` / `financing_data.txt`）；② `p_id` 传平台项目号（只能访问令牌归属账号自己的项目）。
+**三种数据入口（通用）**：① `files` 直接传 5 类输入 txt（`project_basic_info.txt` / `construction_data.txt` / `revenue_data.txt` / `cost_data.txt` / `financing_data.txt`）；② `draft_id` 复用/修改上次输入草稿（files 调用成功自动保存，30 天滚动有效——单独传=原样复用，+files=只传变化的文件；`draft_manage` 可列表/删除/导出）；③ `p_id` 传平台项目号（只能访问令牌归属账号自己的项目）。
 
 ## 快速开始 | Quick Start
 
@@ -81,7 +81,7 @@
 - 鉴权：请求头 Authorization: Bearer <我的令牌>（令牌我稍后提供，若你已看到请直接用）
 
 请按你所在环境自行选择接入方式（写入 mcp.json / claude mcp add / MCP 设置界面添加均可），
-连接后调用 tools/list 验证（应返回 23 个工具），再调用一次 get_protocol_instructions 阅读
+连接后调用 tools/list 验证（应返回 25 个工具），再调用一次 get_protocol_instructions 阅读
 接入总则（72 小时内免重复）。完成后告诉我已接入的工具数量，然后等我发项目数据开始测算。
 ```
 
