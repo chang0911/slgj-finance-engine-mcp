@@ -99,6 +99,8 @@
       E投原生导出的11张报表txt：文件名→全文（用法②）
   - `input` （必填） object
       用法①：完整五类输入txt（推荐，平台计算标准报表）；用法②：至少含 project_basic_info.txt
+  - `draft_id` （可选） string
+      复用上次完整五类输入草稿（单独传入即五类直算模式；30天滚动，draft_manage 可列表/删除/导出）
   - `return_mode` （可选） string · 枚举: base64 / url
       成品交付方式：base64（默认，兼容）；url 推荐——返回72h下载短链（file.url），防大文件撑爆上下文，外部客户端建议默认 url
 
