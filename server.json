@@ -20,7 +20,7 @@
     "due-diligence",
     "irr"
   ],
-  "tools_count": 25,
+  "tools_count": 26,
   "language": [
     "zh-CN",
     "en"
@@ -41,6 +41,7 @@
     "run_uncertainty: sensitivity / scenario / Monte-Carlo",
     "estimate_excel / match_cost_indicators: investment estimation + cost-indicator matching",
     "permitted_cost_excel / run_national_econ: regulated pricing & national econ evaluation",
-    "run_debt_calculator: loan repayment schedule calculator (11 repayment methods, segmented type/rate, grace period, penalty simulation, multi-loan portfolio, dual day-count conventions)"
+    "run_debt_calculator: loan repayment schedule calculator (11 repayment methods, segmented type/rate, grace period, penalty simulation, multi-loan portfolio, dual day-count conventions)",
+    "run_bond_review: special-purpose bond financing-revenue balance calculation (coverage ratios: gross/net-cash/declared/capital/combined-financing + yearly balance table); five-module review workflow via get_skill_instructions(bond_review)"
   ]
 }

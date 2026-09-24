@@ -12,7 +12,7 @@ claude mcp add --transport http slgj-finance \
   --header "Authorization: Bearer ***你的令牌"
 ```
 
-添加后用 `/mcp` 查看连接状态，应显示 21 个工具。
+添加后用 `/mcp` 查看连接状态，应显示 26 个工具。
 
 ## Claude Desktop
 

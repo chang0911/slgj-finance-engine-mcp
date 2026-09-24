@@ -23,14 +23,14 @@
 
 **English**: A full-life financial modeling engine for investment projects. Feed five input files (basic info / construction investment / revenue / cost / financing) and get 11 native financial statements plus IRR/MIRR/NPV indicators, a 12-sheet formula Excel, a financial dashboard, and Word reports (feasibility study / economic evaluation / national economic evaluation) — with a 73-item consistency check, a 16-item revenue/expense review, and second-level goal-seeking. Uniquely supports exact modeling of arbitrary-month cash flows (non-full-year, non-January start) with dual annual/monthly indicator sets. All numbers are computed by the engine; the AI only narrates.
 
-## 核心能力 | Tools (23)
+## 核心能力 | Tools (26)
 
 > 🔑 = 首次调用前需先执行一次 `get_protocol_instructions`（72 小时内免重复握手）。完整参数契约见 [docs/tool-catalog.md](docs/tool-catalog.md)，或匿名 `tools/list` 实时查看。
 
 | 类别 | 工具 | 说明 |
 |---|---|---|
 | 接入门禁 | `get_protocol_instructions` | 接入总则（目录结构 / 文件命名 / 成品规范） |
-| | `get_skill_instructions` | 技能工作流指令模板（测算 / 估算 / 演示 / 定价 / 报告等 8 类） |
+| | `get_skill_instructions` | 技能工作流指令模板（测算 / 估算 / 演示 / 定价 / 报告 / 专项债审查 / 后评价 / 数据溯源等 11 类） |
 | 测算 | `fast_calc_reports` | 五类输入 → 11 张报表 + 指标 + IRR/MIRR 诊断 + 资金缺口（JSON 取数） |
 | | `fast_calc_excel` 🔑 | 12 表全公式 Excel（E投口径 + 勾稽自检页），72h 下载短链 |
 | | `run_delivery_bundle` 🔑 | 一键四件套：Excel + 看板 + 敏感性 + 可选 Word（25-30s） |
@@ -38,6 +38,7 @@
 | 分析与体检 | `run_model_check` | 报表勾稽体检：E/A/F/B/C/D 六段 73 项校验 |
 | | `run_revenue_review` | 收入费用合理性审查：R/C/X 三模块 16 项 |
 | | `run_uncertainty` 🔑 | 敏感性 / 情景 / 蒙特卡洛 + 总报告 |
+| | `run_bond_review` 🔑 | 专项债融资收益平衡精算：覆盖倍数（毛/净/申报/资本金/组合融资）+ 分年平衡表；五模块审查流程见 get_skill_instructions |
 | 报告与演示 | `generate_word_report` | Word 报告：公文 / 可研 8 章 / 经济评价 6 章 / 国民经济专项，附表自动组装 + 数字防伪 |
 | | `generate_dashboard` | 财务看板：动态资金流演绎 + 双口径偿债能力，单文件 HTML 可离线 |
 | | `get_chapter_data` | 可研 / 经济评价报告按章节取数（引擎值直供占位符） |
@@ -81,7 +82,7 @@
 - 鉴权：请求头 Authorization: Bearer <我的令牌>（令牌我稍后提供，若你已看到请直接用）
 
 请按你所在环境自行选择接入方式（写入 mcp.json / claude mcp add / MCP 设置界面添加均可），
-连接后调用 tools/list 验证（应返回 25 个工具），再调用一次 get_protocol_instructions 阅读
+连接后调用 tools/list 验证（应返回 26 个工具），再调用一次 get_protocol_instructions 阅读
 接入总则（72 小时内免重复）。完成后告诉我已接入的工具数量，然后等我发项目数据开始测算。
 ```
 

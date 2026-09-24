@@ -21,10 +21,10 @@
 
 ## `get_skill_instructions`
 
-读取技能工作流指令模板：nlmodel=快速测算、estimate=投资估算、ppt=演示文稿、permitted_cost=准许成本定价、national_econ=国民经济评价。
+读取技能工作流指令模板：nlmodel=快速测算、estimate=投资估算、ppt=演示文稿、permitted_cost=准许成本定价、national_econ=国民经济评价、bond_review=专项债审查五模块、post_eval=后评价、provenance=数据溯源。
 
 **入参：**
-  - `skill` （必填） string · 枚举: nlmodel / estimate / ppt / permitted_cost / national_econ / feasibility_report / econ_report / national_report
+  - `skill` （必填） string · 枚举: nlmodel / estimate / ppt / permitted_cost / national_econ / feasibility_report / econ_report / national_report / bond_review / post_eval / provenance
 
 ---
 
@@ -360,6 +360,26 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
       单位标注（默认 万元）
   - `yearly_only` （可选） boolean
       true=省流模式：剥离逐月明细pays，仅返回年度汇总+合计+自检
+
+---
+
+## `run_bond_review` 🔑
+
+专项债融资收益平衡精算（2026-09-24 上线）：bonds 批次 + 五类输入（引擎直算标准报表，推荐）或 E投原生报表 → 覆盖倍数（毛收益/净付现/申报口径/资本金批次/组合融资）+ 分年平衡表 + 累计结余最低点 + 风险提示。批次要素（金额/发行年份/期限/票面利率/还本方式/资金用途 debt债务性|capital资本金）必须先向用户确认后传入，缺项反问不假设；资本金批次建议配 adjust 增列政府性基金收入；组合融资传 market_loan_from_reports=true（须确认报表贷款未重复包含申报批次）。当地覆盖倍数要求用户给不出时用默认 1.10 并在结论注明。完整五模块审查（投向合规/收益来源合法性/期限要素/审计高频问题对照）流程见 get_skill_instructions(skill=bond_review)。覆盖倍数与分年平衡为脚本精算，数字一律引用返回原文、禁止心算。
+
+**入参：**
+  - `bonds` （必填） array
+      专项债批次数组，每批 {name, amount(万元), issue_year, term(年), rate(小数如0.029), repayment: bullet到期一次还本|equal分年等额, grace(宽限期年,可选), use: debt(默认)|capital}
+  - `input` （可选） object
+      完整五类输入txt {文件名:全文}（推荐，平台引擎直算标准11张报表，与平台分析同源同口径）
+  - `reports` （可选） object
+      E投原生导出报表txt（至少四张：profit_distribution_stat / cost_expense_stat / revenue_stat / debt_repayment_schedule，全量11张亦可，自行拼装的表会被拦）
+  - `market_loan_from_reports` （可选） boolean
+      组合融资：从还本付息表计入市场化融资本息（须确认报表贷款未重复包含申报的专项债批次）
+  - `adjust` （可选） object
+      申报口径调整 {extra_income:{年份:万元}, extra_cost:{年份:万元}, note}——资本金批次建议必配（增列政府性基金收入）
+  - `min_coverage` （可选） number
+      覆盖倍数参考线，默认 1.10（用户给不出要求时用默认并在结论注明）
 
 ---
 
