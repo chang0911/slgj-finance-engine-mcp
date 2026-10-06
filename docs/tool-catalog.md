@@ -1,6 +1,6 @@
-# 工具契约目录（23 个）
+# 工具契约目录（33 个）
 
-> 快照时间：2026-09-17 · 与生产端点 `tools/list` 实时返回一致（可匿名查看）。
+> 快照时间：2026-10-06 · 与生产端点 `tools/list` 实时返回一致（可匿名查看）。
 > 🔑 = 成品类工具，首次调用前需先执行一次 `get_protocol_instructions`（72 小时内免重复握手）。
 
 ---
@@ -211,6 +211,19 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
 
 ---
 
+## `generate_pptx`
+
+原生 PPT 文稿导出（可编辑 .pptx，PowerPoint/WPS 可开）：宿主 AI 按 ppt_native 工作流逐页设计 SVG 页面后提交本工具——平台侧质检（非阻断）+ SVG→PPTX 确定性导出。AI 创作（页面设计/文案/图表）在宿主完成，导出引擎在平台。页面设计规范、串行工作流与 spec 纪律见 `get_skill_instructions(skill=ppt_native)`。
+
+**入参：**
+  - `pages` （必填） object · `{slide_01.svg: "<svg…>"}`：键=文件名（按放映顺序排序），值=完整 SVG 文档（画布尺寸按 format：ppt169=1280×720）
+  - `file_name` （可选） string · 成品文件名（默认 演示文稿.pptx）
+  - `format` （可选） string · 枚举: ppt169（16:9，默认） / ppt43（4:3） / a4
+  - `assets` （可选） object · 图片素材 {文件名: base64}，写入项目 assets/，SVG 内以相对路径引用
+  - `return_mode` （可选） string · 成品交付：url（推荐，72h 短链）
+
+---
+
 ## `run_national_econ`
 
 国民经济评价：效益/费用数组（第0年起，万元，影子价格口径，剔除税收/补贴/国内利息等转移支付）→ ENPV/EIRR/BCR/累计净效益+可行性判定，默认附单因素敏感性与多情景对比。效益费用识别与影子价格调整方法先看 get_skill_instructions(skill=national_econ)。
@@ -262,6 +275,16 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
 
 ---
 
+## `check_benchmark`
+
+行业基准校验（录入数据质量防线）：关键参数 vs 行业常识量级区间（单方投资/运营成本/服务费单价/资本金IRR等）+ 政策红线（资本金比例/折旧年限/税率/负荷率）。判定 OK / SUSPECT（区间外但同量级）/ ABNORMAL（差一个量级，疑似单位错误或漏零）。在数据进引擎**之前**校验录入质量，或在测算后对指标做合理性雷达。industry 传行业名（未匹配时返回支持清单）。
+
+**入参：**
+  - `industry` （必填） string · 枚举: 污水处理 / 供水 / 垃圾焚烧发电 / 高速公路 / 市政道路 / 光伏电站 / 陆上风电 / 学校建筑 / 医院建筑 / 产业园标准厂房 / 养老机构 / 火力发电（支持常见别名）
+  - `params` （必填） object · 常用键: unit_invest（单方投资）/ opex / service_fee / treat_fee / water_price / irr_equity_after_tax(%)/ equity_ratio(%) 等 {键:数值}
+
+---
+
 ## `get_chapter_data`
 
 报告章节取数：可研报告(feasibility,8章)或经济评价报告(econ,6章)按章节返回结构化数据+写作要点，供撰写后走 generate_word_report 出稿。chapter=list 先看目录；数据源 p_id(+stage) 或 reports 对象（无平台项目号时可先 fast_calc_reports 生成11张表再传入）。数字一律引用返回值。模板先看 get_skill_instructions(skill=feasibility_report|econ_report)。 各章返回的 data 键可作 generate_word_report 段落占位符 {{章节.键[.年份|.total]}}（比率可|pct）——数字由系统直灌，推荐用。
@@ -293,6 +316,16 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
       默认 scheme_stage
   - `reports` （可选） object
       直接提交报表（与 p_id 二选一）：{E投标准报表文件名: 原生txt全文}，或 JSON {文件名:{行名:{年份:数值}}} / [[表头行],[数据行]...] 二维数组（financial_ratios 传 [{idx,name,m,a}] 列表），或 fast_calc_reports 返回的 tables 整包；可子集
+
+---
+
+## `web_fetch`
+
+网页抓取：读取任意 URL 的文本内容（政策文件、招标公告、新闻、在线文档）。自动跟随重定向（最多 5 次），返回纯文本（自动剥离 HTML 标签，保留正文），最大 30KB 截断。仅支持 http/https。
+
+**入参：**
+  - `url` （必填） string · 要抓取的网页 URL（http/https）
+  - `max_chars` （可选） integer · 最大返回字符数（默认 30000，上限 50000）
 
 ---
 
@@ -380,6 +413,53 @@ Word报告双管线：report_type=gongwen（默认）=通用公文格式，标�
       申报口径调整 {extra_income:{年份:万元}, extra_cost:{年份:万元}, note}——资本金批次建议必配（增列政府性基金收入）
   - `min_coverage` （可选） number
       覆盖倍数参考线，默认 1.10（用户给不出要求时用默认并在结论注明）
+
+---
+
+## `bid_parse`
+
+投标文件编制·上传解析：招标文件（PDF/DOCX/TXT，1~5 个，含补遗书）→ 平台解析（含扫描件 OCR 兜底）+ 按解析规范提取七模块摘要确认单（项目基本信息/采购方式与评审方法/格式要求/评分标准原文摘录/资格要求/否决项与实质性要求/特殊要求）+ bid_id 草稿锚点（30 天滚动有效）。uncertain 清单=AI 不可确认需向用户核实的问题（公司信息/报价等必须问，不得编造）。多轮修订走 bid_patch。
+
+**入参：**
+  - `files` （必填） array · [{name, base64}] 招标文件原件（pdf/docx/txt/md，单个≤15MB）
+
+---
+
+## `bid_patch`
+
+投标文件编制·摘要修订：bid_id + patch {模块名: 修正后内容}（整体替换该模块）——多轮确认对话的持久化通道，换会话不丢上下文。七模块名与 bid_parse 返回一致。
+
+**入参：**
+  - `bid_id` （必填） string
+  - `patch` （必填） object · {七模块名之一: 修正后内容}
+
+---
+
+## `bid_lock`
+
+投标文件编制·锁定基线：用户确认摘要后锁定（评分标准/否决项/格式要求即成起草与校验的不可变基线）。锁定后 patch 拒绝；如需改基线须与用户明确确认后重新走确认流程。
+
+**入参：**
+  - `bid_id` （必填） string
+
+---
+
+## `bid_draft_get`
+
+投标文件编制·读草稿：bid_id → 当前摘要/状态/版本史/源文件清单（续期 30 天）。断点续作入口。
+
+**入参：**
+  - `bid_id` （必填） string
+
+---
+
+## `bid_check_chapter`
+
+投标文件编制·章节覆盖校验：章节内容 vs 锁定基线（评分标准逐项+否决项清单）→ 逐项覆盖判定（覆盖/部分/缺失+依据+补强建议）+ 覆盖率 + must_fix（缺失否决项——零容忍必须补齐）。判定从严：未明确响应即缺失。每章起草完先校验再进入下一章（串行纪律）。导出走 generate_word_report（gongwen）。
+
+**入参：**
+  - `bid_id` （必填） string
+  - `chapter` （必填） object · {title, content}——content 为该章完整正文（≥50 字）
 
 ---
 

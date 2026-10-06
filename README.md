@@ -23,7 +23,7 @@
 
 **English**: A full-life financial modeling engine for investment projects. Feed five input files (basic info / construction investment / revenue / cost / financing) and get 11 native financial statements plus IRR/MIRR/NPV indicators, a 12-sheet formula Excel, a financial dashboard, and Word reports (feasibility study / economic evaluation / national economic evaluation) — with a 73-item consistency check, a 16-item revenue/expense review, and second-level goal-seeking. Uniquely supports exact modeling of arbitrary-month cash flows (non-full-year, non-January start) with dual annual/monthly indicator sets. All numbers are computed by the engine; the AI only narrates.
 
-## 核心能力 | Tools (26)
+## 核心能力 | Tools (33)
 
 > 🔑 = 首次调用前需先执行一次 `get_protocol_instructions`（72 小时内免重复握手）。完整参数契约见 [docs/tool-catalog.md](docs/tool-catalog.md)，或匿名 `tools/list` 实时查看。
 
@@ -82,7 +82,7 @@
 - 鉴权：请求头 Authorization: Bearer <我的令牌>（令牌我稍后提供，若你已看到请直接用）
 
 请按你所在环境自行选择接入方式（写入 mcp.json / claude mcp add / MCP 设置界面添加均可），
-连接后调用 tools/list 验证（应返回 26 个工具），再调用一次 get_protocol_instructions 阅读
+连接后调用 tools/list 验证（应返回 33 个工具），再调用一次 get_protocol_instructions 阅读
 接入总则（72 小时内免重复）。完成后告诉我已接入的工具数量，然后等我发项目数据开始测算。
 ```
 
