@@ -40,6 +40,7 @@
 | | `run_uncertainty` 🔑 | 敏感性 / 情景 / 蒙特卡洛 + 总报告 |
 | | `run_bond_review` 🔑 | 专项债融资收益平衡精算：覆盖倍数（毛/净/申报/资本金/组合融资）+ 分年平衡表；五模块审查流程见 get_skill_instructions |
 | 报告与演示 | `generate_word_report` | Word 报告：公文 / 可研 8 章 / 经济评价 6 章 / 国民经济专项，附表自动组装 + 数字防伪 |
+| | `run_report_layout` | 专业报告排版：任意 Word 基础稿 → 可研标准版式（封面双行 + 真目录 + 表格规范；横向附表按年份分页，数字不换行） |
 | | `generate_dashboard` | 财务看板：动态资金流演绎 + 双口径偿债能力，单文件 HTML 可离线 |
 | | `get_chapter_data` | 可研 / 经济评价报告按章节取数（引擎值直供占位符） |
 | | `ppt_extract_data` 🔑 | 演示文稿取数：报表 → 结构化 JSON |
