@@ -11,7 +11,7 @@
 [![Auth](https://img.shields.io/badge/auth-Bearer%20Token-orange)]()
 [![Tools](https://img.shields.io/badge/tools-23-9333ea)]()
 
-[官网](https://www.slgj.cn) · [用户接入说明](docs/onboarding.md) · [工具契约目录](docs/tool-catalog.md) · [令牌获取](https://www.slgj.cn/payment/mcp_access)
+[官网](https://www.slgj.cn) · [用户接入说明](docs/onboarding.md) · [工具契约目录](docs/tool-catalog.md) · [令牌获取](https://www.slgj.cn/#/payment/mcp_access)
 
 </div>
 
@@ -57,7 +57,7 @@
 
 ## 快速开始 | Quick Start
 
-**1. 获取令牌**：注册 [www.slgj.cn](https://www.slgj.cn) → [个人中心 → AI接入](https://www.slgj.cn/payment/mcp_access) → 生成 MCP 令牌（`sk-mcp-` 开头，30/90 天，每账号 3 把，可随时吊销）
+**1. 获取令牌**：注册 [www.slgj.cn](https://www.slgj.cn) → [个人中心 → AI接入](https://www.slgj.cn/#/payment/mcp_access) → 生成 MCP 令牌（`sk-mcp-` 开头，30/90 天，每账号 3 把，可随时吊销）
 
 **2. 配置客户端**（Claude Desktop / Cursor / VS Code / Cherry Studio / CodeBuddy / WorkBuddy / 通义灵码等通用）：
 
