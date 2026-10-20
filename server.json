@@ -8,7 +8,7 @@
     "type": "api-key",
     "location": "header",
     "name": "Authorization",
-    "note": "Platform-issued MCP token (sk-mcp-...) or web login token. Get yours at https://www.slgj.cn (register -> Personal Center -> AI Access)."
+    "note": "Platform-issued MCP token (sk-mcp-...) or web login token. Get yours at https://www.slgj.cn/#/payment/mcp_access"
   },
   "tags": [
     "finance",
@@ -20,7 +20,7 @@
     "due-diligence",
     "irr"
   ],
-  "tools_count": 34,
+  "tools_count": 36,
   "language": [
     "zh-CN",
     "en"
